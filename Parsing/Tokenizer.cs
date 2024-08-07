@@ -23,7 +23,7 @@ public static class Tokenizer
                             if (regex[i] == '^')
                             {
                                 i++;
-                                capturegroup.Add(new CaptureSubGroup(char.MinValue, regex[i++]));
+                                capturegroup.Add(new CaptureSubGroup((char)(1 + char.MinValue), regex[i++]));
                                 capturegroup.Add(new CaptureSubGroup(regex[i++], char.MaxValue));
                             }
                             else
@@ -49,7 +49,8 @@ public static class Tokenizer
         ];
         for (var i = 1; i < tokenized.Count; i++)
         {
-            if (!tokenized[i].IsOperator && !tokenized[i-1].IsOperator && !tokenized[i].Equals(Token.BracketClose) &&
+            if (!tokenized[i].IsOperator && !tokenized[i - 1].Equals(Token.Or) &&
+                !tokenized[i].Equals(Token.BracketClose) &&
                 !tokenized[i - 1].Equals(Token.BracketOpen))
             {
                 res.Add(Token.Append);

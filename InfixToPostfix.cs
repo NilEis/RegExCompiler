@@ -1,10 +1,11 @@
-﻿using RegExCompiler.Parsing;
+﻿using System.Collections.Immutable;
+using RegExCompiler.Parsing;
 
 namespace RegExCompiler;
 
 public static class InfixToPostfix
 {
-    public static IEnumerable<Token> Convert(IEnumerable<Token> input)
+    public static ImmutableList<Token> Convert(IEnumerable<Token> input)
     {
         Queue<Token> output = [];
         Stack<Token> operators = [];
@@ -42,6 +43,6 @@ public static class InfixToPostfix
             output.Enqueue(operators.Pop());
         }
 
-        return output;
+        return output.ToImmutableList();
     }
 }
