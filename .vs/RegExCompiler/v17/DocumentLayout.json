@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Nils_Eisenach\\Desktop\\dev\\CS\\RegExCompiler\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8C7CEF3E-509F-4A3D-B2AC-91E424604D45}|src\\RegExCompiler.csproj|c:\\users\\nils_eisenach\\desktop\\dev\\cs\\regexcompiler\\src\\nfa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C7CEF3E-509F-4A3D-B2AC-91E424604D45}|src\\RegExCompiler.csproj|solutionrelative:src\\nfa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Nfa.cs",
+              "DocumentMoniker": "C:\\Users\\Nils_Eisenach\\Desktop\\dev\\CS\\RegExCompiler\\src\\Nfa.cs",
+              "RelativeDocumentMoniker": "src\\Nfa.cs",
+              "ToolTip": "C:\\Users\\Nils_Eisenach\\Desktop\\dev\\CS\\RegExCompiler\\src\\Nfa.cs",
+              "RelativeToolTip": "src\\Nfa.cs",
+              "ViewState": "AQIAABYBAAAAAAAAAAAYwCQBAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-07T16:33:06.618Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
