@@ -23,4 +23,4 @@ jobs:
     - name: Install tools
       run: dotnet workload install wasm-tools & dotnet workload install wasm-experimental
     - name: Build
-      run: ls & dotnet publish -c Release ./WebExample/WebExample.csproj
+      run: dotnet publish -c Release ./WebExample/WebExample.csproj
