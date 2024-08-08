@@ -13,6 +13,20 @@ public class Nfa
     public int Final;
     public int Initial;
     private string _name = null!;
+    private static ImmutableHashSet<char> allowedChars;
+
+    static Nfa()
+    {
+        var set = new HashSet<char>();
+        foreach (var i in Enumerable.Range('\x1', 127).Select(i=>(char)i))
+        {
+            if (!char.IsControl(i))
+            {
+                set.Add(i);
+            }
+        }
+        allowedChars = set.ToImmutableHashSet();
+    }
 
     public HashSet<char> Alphabet { get; } = [];
 
@@ -108,8 +122,7 @@ public class Nfa
                     Initial = 0,
                     Final = 1
                 };
-                curr.AddTransition(0, 1, Epsilon);
-                for (var i = (char)(char.MinValue + 1); i <= char.MaxValue; i++)
+                foreach (var i in allowedChars)
                 {
                     curr.AddTransition(0, 1, i);
                 }
@@ -257,6 +270,11 @@ public class Nfa
 
     private void AddTransition(int from, int to, char c)
     {
+        if (!allowedChars.Contains(c) && c != Epsilon)
+        {
+            return;
+        }
+
         Alphabet.Add(c);
         if (_transitions.TryGetValue(from, out var t))
         {
@@ -346,7 +364,7 @@ public class Nfa
             {
                 k = "ε";
             }
-            else if (!char.IsDigit(c) && !char.IsLetter(c))
+            else if (char.IsControl(c))
             {
                 k = $"Control-{(int)c}";
             }
@@ -364,9 +382,17 @@ public class Nfa
                 {
                     k = "ε";
                 }
-                else if (!char.IsDigit(key) && !char.IsLetter(key))
+                else if (char.IsControl(key))
                 {
                     k = $"Control-{(int)key}";
+                }
+                else if(key == '"')
+                {
+                    k = "\\\"";
+                }
+                else if (key == '\\')
+                {
+                    k = @"\\";
                 }
 
                 foreach (var dest in _transitions[transition][key])

@@ -170,7 +170,7 @@ public class Dfa
         foreach (var c in Alphabet)
         {
             var k = $"{c}";
-            if (!char.IsDigit(c) && !char.IsLetter(c))
+            if (char.IsControl(c))
             {
                 k = $"Control-{(int)c}";
             }
@@ -184,9 +184,17 @@ public class Dfa
             foreach (var key in _transitions[transition].Keys)
             {
                 var k = $"{key}";
-                if (!char.IsDigit(key) && !char.IsLetter(key))
+                if (char.IsControl(key))
                 {
                     k = $"Control-{(int)key}";
+                }
+                else if(key == '"')
+                {
+                    k = "\\\"";
+                }
+                else if (key == '\\')
+                {
+                    k = @"\\";
                 }
 
                 builder.AppendLine($"\t{transition} -> {_transitions[transition][key]} [label=\"{k}\"];");
