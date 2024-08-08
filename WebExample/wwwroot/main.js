@@ -22,21 +22,20 @@ let createSVG = () => {
     alert("viz not loaded");
 };
 window["vizInstance"] = null;
-function compile()
-{
+
+function compile() {
     const res = exports.WebRegExCompiler.RegExToNfaAndDfa(document.getElementById("RegExInput").value);
     document.getElementById('outNfa').innerHTML = res[0];
     document.getElementById('outDfa').innerHTML = res[1];
     createSVG();
 }
+
 document.getElementById("renderButton").onclick = () => {
     compile();
 };
 
-document.getElementById("RegExInput").oninput = ()=>
-{
-    if(document.getElementById("ConstantCompile").checked)
-    {
+document.getElementById("RegExInput").oninput = () => {
+    if (document.getElementById("ConstantCompile").checked) {
         compile();
     }
 }

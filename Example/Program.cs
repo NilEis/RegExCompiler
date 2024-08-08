@@ -3,7 +3,7 @@ using System.Text;
 using RegExCompiler;
 using RegExCompiler.Parsing;
 
-const string input = "a+bc(de)*";
+const string input = "a+m*ogu?s";
 var tokenized = Tokenizer.Tokenize(input).ToImmutableList();
 var tokenizedString = new StringBuilder("");
 foreach (var token in tokenized)
@@ -26,3 +26,8 @@ swNfa.Write(nfa);
 var dfa = Dfa.FromNfa(nfa);
 using var swDfa = new StreamWriter("dfa.dot");
 swDfa.Write(dfa);
+
+dfa.Match("amogus", out var res);
+dfa.Match("amogs", out res);
+dfa.Match("amogusa", out res);
+var x = dfa.IsMatch("abacusa");

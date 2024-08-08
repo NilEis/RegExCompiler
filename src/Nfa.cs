@@ -8,15 +8,13 @@ namespace RegExCompiler;
 
 public class Nfa
 {
-    public int Initial;
+    public const char Epsilon = 'ε';
+    private readonly Dictionary<int, Dictionary<char, HashSet<int>>> _transitions = [];
     public int Final;
-    public string Name = null!;
-
-    public HashSet<int> States => [.._transitions.Keys];
+    public int Initial;
+    private string _name = null!;
 
     public HashSet<char> Alphabet { get; } = [];
-    private readonly Dictionary<int, Dictionary<char, HashSet<int>>> _transitions = [];
-    public const char Epsilon = 'ε';
 
     public static Nfa FromInfix(ImmutableList<Token> input, string title = "NFA")
     {
@@ -27,7 +25,7 @@ public class Nfa
             {
                 var curr = new Nfa
                 {
-                    Name = title,
+                    _name = title,
                     Initial = 0,
                     Final = 1
                 };
@@ -59,7 +57,7 @@ public class Nfa
                 var a = stack.Pop();
                 var curr = new Nfa
                 {
-                    Name = title,
+                    _name = title,
                     Initial = a.Initial,
                     Final = a.Final
                 };
@@ -84,7 +82,7 @@ public class Nfa
                 var a = stack.Pop();
                 var curr = new Nfa
                 {
-                    Name = title,
+                    _name = title,
                     Initial = a.Initial,
                     Final = a.Final
                 };
@@ -106,7 +104,7 @@ public class Nfa
             {
                 var curr = new Nfa
                 {
-                    Name = title,
+                    _name = title,
                     Initial = 0,
                     Final = 1
                 };
@@ -152,7 +150,7 @@ public class Nfa
     {
         var curr = new Nfa
         {
-            Name = a.Name,
+            _name = a._name,
             Initial = 0
         };
         curr.AddTransition(0, a.Initial + 1, Epsilon);
@@ -178,7 +176,7 @@ public class Nfa
     {
         var curr = new Nfa
         {
-            Name = a.Name,
+            _name = a._name,
             Initial = 0
         };
         curr.AddTransition(0, a.Initial + 1, Epsilon);
@@ -215,7 +213,7 @@ public class Nfa
     {
         var curr = new Nfa
         {
-            Name = a.Name,
+            _name = a._name,
             Initial = 0
         };
         var i = 1;
@@ -252,7 +250,7 @@ public class Nfa
         return curr;
     }
 
-    public bool AddTransition(int from, int to, char c)
+    private void AddTransition(int from, int to, char c)
     {
         Alphabet.Add(c);
         if (_transitions.TryGetValue(from, out var t))
@@ -260,15 +258,17 @@ public class Nfa
             if (t.TryGetValue(c, out var l))
             {
                 l.Add(to);
+                return;
             }
 
-            return t.TryAdd(c, [to]);
+            t.Add(c, [to]);
+            return;
         }
 
         t = new Dictionary<char, HashSet<int>>();
         _transitions.Add(from, t);
 
-        return t.TryAdd(c, [to]);
+        t.Add(c, [to]);
     }
 
     public bool GetTransitions(int start, char c, [NotNullWhen(true)] out ImmutableHashSet<int>? res)
@@ -326,7 +326,7 @@ public class Nfa
     public override string ToString()
     {
         var builder = new StringBuilder("digraph {\n").AppendLine("\trankdir=LR;")
-            .AppendLine($"\tlabel=\"RegEx: {Name}\"")
+            .AppendLine($"\tlabel=\"RegEx: {_name}\"")
             .Append($"\tnode [shape = circle]; {string.Join("; ", _transitions.Keys.Where(start => start != Final))};");
 
         builder.Append('\n');

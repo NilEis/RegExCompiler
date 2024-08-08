@@ -1,20 +1,21 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace RegExCompiler;
 
 public class Dfa
 {
-    public string Initial = null!;
-    public readonly HashSet<string> Final = [];
-    public string Name = null!;
-    public HashSet<char> Alphabet { get; private set; } = [];
     private readonly Dictionary<string, Dictionary<char, string>> _transitions = [];
+    private readonly HashSet<string> _final = [];
+    private string _initial = null!;
+    private string _name = null!;
+    private HashSet<char> Alphabet { get; init; } = [];
 
     public static Dfa FromNfa(Nfa nfa, string name = "DFA")
     {
         var res = new Dfa
         {
-            Name = name,
+            _name = name,
             Alphabet = nfa.Alphabet.Where(m => m != Nfa.Epsilon).ToHashSet()
         };
         var tTable =
@@ -22,7 +23,8 @@ public class Dfa
                 .CreateSetComparer()); // states -> char -> dests
         var stack = new Stack<HashSet<int>>();
         var visitedSet = new HashSet<HashSet<int>>(HashSet<int>.CreateSetComparer());
-        AddToStack(nfa.GetEpsilonReachableStates(nfa.Initial).ToHashSet());
+        var initialState = nfa.GetEpsilonReachableStates(nfa.Initial).ToHashSet();
+        AddToStack(initialState);
         while (stack.TryPop(out var states))
         {
             if (!tTable.TryGetValue(states, out var d))
@@ -69,7 +71,7 @@ public class Dfa
             var state = StateSetToName(stateSet);
             if (stateSet.Any(s => nfa.Final == s))
             {
-                res.Final.Add(state);
+                res._final.Add(state);
             }
 
             foreach (var key in tTable[stateSet].Keys)
@@ -77,6 +79,8 @@ public class Dfa
                 res.AddTransition(state, StateSetToName(tTable[stateSet][key]), key);
             }
         }
+
+        res._initial = res._transitions.Keys.AsEnumerable().ToArray()[1];
 
         return res;
 
@@ -87,40 +91,79 @@ public class Dfa
 
         void AddToStack(HashSet<int> dest)
         {
-            if (!visitedSet.Contains(dest))
+            if (visitedSet.Add(dest))
             {
-                visitedSet.Add(dest);
                 stack.Push(dest);
             }
         }
     }
 
-    public bool AddTransition(string from, string to, char c)
+    private void AddTransition(string from, string to, char c)
     {
         Alphabet.Add(c);
         if (_transitions.TryGetValue(from, out var t))
         {
-            return t.TryAdd(c, to);
+            t.Add(c, to);
+            return;
         }
 
         t = new Dictionary<char, string>();
         _transitions.Add(from, t);
 
-        return t.TryAdd(c, to);
+        t.Add(c, to);
+    }
+
+    public bool IsMatch(string input)
+    {
+        return Match(input, out var res) && input.Equals(res);
+    }
+
+    public bool Match(string input, [NotNullWhen(true)] out string? match)
+    {
+        var state = _initial;
+        var i = 0;
+        match = null;
+        while (i < input.Length)
+        {
+            string? dest;
+            if (_transitions.TryGetValue(state, out var transition))
+            {
+                if (!transition.TryGetValue(input[i], out dest))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+
+            state = dest;
+            i++;
+        }
+
+        if (i == 0)
+        {
+            return false;
+        }
+
+        match = input[..i];
+        return true;
+
     }
 
     public override string ToString()
     {
-        var allStates = Final.Union(_transitions.Keys);
+        var allStates = _final.Union(_transitions.Keys).ToHashSet();
         Console.Out.WriteLine($"states: {{{string.Join(", ", allStates)}}}");
-        Console.Out.WriteLine($"finals: {{{string.Join(", ", Final)}}}");
-        var normalStates = string.Join("; ", allStates.Where(state => !Final.Contains(state)));
+        Console.Out.WriteLine($"finals: {{{string.Join(", ", _final)}}}");
+        var normalStates = string.Join("; ", allStates.Where(state => !_final.Contains(state)));
         var builder = new StringBuilder("digraph {\n").AppendLine("\trankdir=LR;")
-            .AppendLine($"\tlabel=\"RegEx: {Name}\"")
+            .AppendLine($"\tlabel=\"RegEx: {_name}\"")
             .AppendLine(normalStates.Length != 0 ? $"\tnode [shape = circle]; {normalStates};" : "");
 
 
-        var finalStates = string.Join("; ", allStates.Where(state => Final.Contains(state)));
+        var finalStates = string.Join("; ", allStates.Where(state => _final.Contains(state)));
         builder.AppendLine(finalStates.Length != 0 ? $"\tnode [shape = doublecircle]; {finalStates};" : "")
             .Append("\t/* Alphabet: ");
         List<string> tmp = [];

@@ -5,20 +5,20 @@ namespace RegExCompiler.Parsing;
 public class Token(int id, string name, char value, bool op = true, IEnumerable<CaptureSubGroup>? values = null)
     : Enumeration<char>(id, value)
 {
-    private static int _idCounter = 0;
+    private static readonly int IdCounter;
+    public static readonly Token BracketOpen = new(IdCounter++, "(", '(', false); //
+    public static readonly Token Element = new(IdCounter++, " ELEMENT ", '\0', false); //
+    public static readonly Token BracketClose = new(IdCounter++, ")", ')', false); //
+    public static readonly Token CaptureGroup = new(IdCounter++, " CAPTURE_GROUP ", '\0', false); //
+    public static readonly Token Or = new(IdCounter++, "|", '|'); //
+    public static readonly Token Any = new(IdCounter++, ".", '.'); //
+    public static readonly Token Append = new(IdCounter++, " APPEND ", '\0'); //
+    public static readonly Token ZeroOrOnce = new(IdCounter++, "?", '?'); //
+    public static readonly Token OneOrMore = new(IdCounter++, "+", '+'); //
+    public static readonly Token Kleene = new(IdCounter++, "*", '*'); //
     public List<CaptureSubGroup> Values { get; } = values?.ToList() ?? [];
-    public int Id { get; } = id;
+    private int Id { get; } = id;
     public bool IsOperator { get; } = op;
-    public static readonly Token BracketOpen = new(_idCounter++, "(", '(', false); //
-    public static readonly Token Element = new(_idCounter++, " ELEMENT ", '\0', false); //
-    public static readonly Token BracketClose = new(_idCounter++, ")", ')', false);//
-    public static readonly Token CaptureGroup = new(_idCounter++, " CAPTURE_GROUP ", '\0', false);//
-    public static readonly Token Or = new(_idCounter++, "|", '|');//
-    public static readonly Token Any = new(_idCounter++, ".", '.'); //
-    public static readonly Token Append = new(_idCounter++, " APPEND ", '\0'); //
-    public static readonly Token ZeroOrOnce = new(_idCounter++, "?", '?'); //
-    public static readonly Token OneOrMore = new(_idCounter++, "+", '+'); //
-    public static readonly Token Kleene = new(_idCounter++, "*", '*'); //
 
     public static Token CreateElement(char value)
     {

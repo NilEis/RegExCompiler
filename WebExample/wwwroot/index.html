@@ -6,9 +6,9 @@
 <head>
     <title>RegExCompiler</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <script src="viz.js"></script>
-    <script type='module' src="./main.js"></script>
+    <script src="./main.js" type='module'></script>
     <style>
         body {
             width: 100%;
@@ -73,9 +73,10 @@
         <div id="DFA"></div>
     </div>
     <div id="controls">
-        <input name="RegExInput" id="RegExInput" value="abc*"><br/>
-        <input type="checkbox" name="TB" id="TB"><label for="TB">Render Top-down</label><br/>
-        <input type="checkbox" name="ConstantCompile" id="ConstantCompile"><label for="ConstantCompile">Compile on every key</label><br/>
+        <input id="RegExInput" name="RegExInput" value="abc*"><br/>
+        <input id="TB" name="TB" type="checkbox"><label for="TB">Render Top-down</label><br/>
+        <input id="ConstantCompile" name="ConstantCompile" type="checkbox"><label for="ConstantCompile">Compile on every
+        key</label><br/>
         <button id="renderButton">Render</button>
         <pre id="outNfa"></pre>
         <pre id="outDfa"></pre>

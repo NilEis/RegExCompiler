@@ -5,19 +5,35 @@ namespace RegExCompiler;
 
 public abstract class Enumeration<T>(int id, T value) : IComparable where T : notnull
 {
-    public T Value { get; private set; } = value;
+    public T Value { get; } = value;
 
-    private int Id { get; set; } = id;
+    private int Id { get; } = id;
 
-    public override string ToString() => Value?.ToString() ?? "null";
+    public int CompareTo(object? other)
+    {
+        return other is null ? 1 : Id.CompareTo(((Enumeration<T>)other).Id);
+    }
 
-    public static IEnumerable<TK> GetAll<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] TK>()
-        where TK : Enumeration<T> =>
-        typeof(TK).GetFields(BindingFlags.Public |
-                             BindingFlags.Static |
-                             BindingFlags.DeclaredOnly)
+    public override string ToString()
+    {
+        return Value.ToString() ?? "null";
+    }
+
+    private static IEnumerable<TK>
+        GetAll<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] TK>()
+        where TK : Enumeration<T>
+    {
+        return typeof(TK).GetFields(BindingFlags.Public |
+                                    BindingFlags.Static |
+                                    BindingFlags.DeclaredOnly)
             .Select(f => f.GetValue(null))
             .Cast<TK>();
+    }
+
+    public override int GetHashCode()
+    {
+        return (Id.GetHashCode() + Value.GetHashCode()).GetHashCode();
+    }
 
     public override bool Equals(object? obj)
     {
@@ -44,10 +60,5 @@ public abstract class Enumeration<T>(int id, T value) : IComparable where T : no
 
         res = fitting.Single();
         return true;
-    }
-
-    public int CompareTo(object? other)
-    {
-        return other is null ? 1 : Id.CompareTo(((Enumeration<T>)other).Id);
     }
 }
