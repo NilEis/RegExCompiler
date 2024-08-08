@@ -6,8 +6,6 @@
         <TrimMode>full</TrimMode>
         <RunAOTCompilation>true</RunAOTCompilation>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\src\RegExCompiler.csproj"/>
