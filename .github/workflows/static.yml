@@ -21,6 +21,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  DOTNET_CLI_HOME: "${{ github.workspace }}/.dotnet"
+
 jobs:
   # Single deploy job since we're just deploying
   deploy:
@@ -35,6 +38,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      - name: Cache dotnet tools
+        id: cache-dotnet-tools
+        uses: actions/cache@v4
+        with:
+          path: "${{ github.workspace }}/.dotnet"
+          key: ${{ runner.os }}-dotnet_tools
       - name: Install tools
         run: dotnet workload install wasm-tools & dotnet workload install wasm-experimental
       - name: Build
