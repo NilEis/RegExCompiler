@@ -9,7 +9,7 @@ public class Token(int id, string name, char value, bool op = true, IEnumerable<
     public static readonly Token BracketOpen = new(IdCounter++, "(", '(', false); //
     public static readonly Token Element = new(IdCounter++, " ELEMENT ", '\0', false); //
     public static readonly Token BracketClose = new(IdCounter++, ")", ')', false); //
-    public static readonly Token CaptureGroup = new(IdCounter++, " CAPTURE_GROUP ", '\0', false); //
+    public static readonly Token CharacterClass = new(IdCounter++, " CharacterClass ", '\0', false); //
     public static readonly Token Or = new(IdCounter++, "|", '|'); //
     public static readonly Token Any = new(IdCounter++, ".", '.'); //
     public static readonly Token Append = new(IdCounter++, " APPEND ", '\0'); //
@@ -25,7 +25,7 @@ public class Token(int id, string name, char value, bool op = true, IEnumerable<
         return new Token(Element.Id, $"{value}", value, false);
     }
 
-    public static Token CreateCaptureGroup(IEnumerable<CaptureSubGroup> values)
+    public static Token CreateCharacterClass(IEnumerable<CaptureSubGroup> values)
     {
         var captureName = new StringBuilder("[");
         var v = values.ToList();
@@ -50,7 +50,7 @@ public class Token(int id, string name, char value, bool op = true, IEnumerable<
             .Append(substring)
             .Append(']');
 
-        return new Token(CaptureGroup.Id, captureName.ToString(), CaptureGroup.Value, false, v);
+        return new Token(CharacterClass.Id, captureName.ToString(), CharacterClass.Value, false, v);
     }
 
     public override string ToString()

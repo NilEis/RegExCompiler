@@ -34,7 +34,7 @@ public static class Tokenizer
                             }
                         }
 
-                        tokenized.Add(Token.CreateCaptureGroup(capturegroup));
+                        tokenized.Add(Token.CreateCharacterClass(capturegroup));
                         break;
                     default:
                         tokenized.Add(Token.CreateElement(regex[i]));

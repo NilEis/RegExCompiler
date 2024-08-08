@@ -32,7 +32,7 @@ public class Nfa
                 curr.AddTransition(0, 1, token.Value);
                 stack.Push(curr);
             }
-            else if (token.Equals(Token.CaptureGroup))
+            else if (token.Equals(Token.CharacterClass))
             {
                 var curr = FromCaptureGroup(token);
                 stack.Push(curr);
@@ -109,6 +109,11 @@ public class Nfa
                     Final = 1
                 };
                 curr.AddTransition(0, 1, Epsilon);
+                for (var i = (char)(char.MinValue + 1); i <= char.MaxValue; i++)
+                {
+                    curr.AddTransition(0, 1, i);
+                }
+
                 stack.Push(curr);
             }
             else if (token.Equals(Token.Kleene))
