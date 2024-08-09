@@ -5,8 +5,8 @@ namespace RegExCompiler;
 
 public class Dfa
 {
-    private readonly Dictionary<string, Dictionary<char, string>> _transitions = [];
-    private readonly HashSet<string> _final = [];
+    private Dictionary<string, Dictionary<char, string>> _transitions = [];
+    private HashSet<string> _final = [];
     private string _initial = null!;
     private string _name = null!;
     private HashSet<char> Alphabet { get; init; } = [];
@@ -153,13 +153,83 @@ public class Dfa
 
     public Dfa Minimize()
     {
+        // Step 1: Remove unreachable states
+        var reachableStates = new HashSet<string> { _initial };
+        var queue = new Queue<string>();
+        queue.Enqueue(_initial);
+
+        while (queue.Count > 0)
+        {
+            var state = queue.Dequeue();
+            if (!_transitions.TryGetValue(state, out var transitions))
+            {
+                continue;
+            }
+
+            foreach (var nextState in transitions.Values.Where(nextState => reachableStates.Add(nextState)))
+            {
+                queue.Enqueue(nextState);
+            }
+        }
+
+        // Remove unreachable states
+        var allStates = new HashSet<string>(_transitions.Keys);
+        var unreachableStates = allStates.Except(reachableStates).ToList();
+        foreach (var state in unreachableStates)
+        {
+            _transitions.Remove(state);
+        }
+
+        _final.IntersectWith(reachableStates);
+        if (!_final.Contains(_initial))
+        {
+            _initial = reachableStates.First();
+        }
+
+        foreach (var state in _transitions.Keys.Where(e =>
+                     _final.Contains(e) && (_transitions[e].Keys.Count == 1 || (_transitions[e].Keys.Count != 0 &&
+                         _transitions[e].Keys.All(v =>
+                             _transitions[e][v].Equals(_transitions[e][_transitions[e].Keys.First()]))))))
+        {
+            var transition = _transitions[state].Keys.First();
+            var dest = _transitions[state][transition];
+            if (!_final.Contains(dest) || !_transitions[dest].Keys.All(v => _transitions[dest].ContainsKey(v) &&
+                                                                           _transitions[dest][v].Equals(dest)) ||
+                dest.Equals(state))
+            {
+                continue;
+            }
+
+            foreach (var st in _transitions.Keys)
+            {
+                foreach (var key in _transitions[st].Keys.Where(key => _transitions[st][key] == state))
+                {
+                    _transitions[st][key] = dest;
+                }
+            }
+
+            Console.Out.WriteLine($"Merge {state} and {dest}");
+            if (_initial.Equals(state))
+            {
+                _initial = dest;
+            }
+            _transitions.Remove(state);
+            _final.Remove(state);
+        }
+
+        return this;
+    }
+
+    public Dfa MinimizeNames()
+    {
         var i = 0;
         var dict = _transitions.Keys.ToDictionary(state => state, state => IndexToName(i++));
 
         foreach (var fin in _final)
         {
-            dict.TryAdd(fin, IndexToName(i++));   
+            dict.TryAdd(fin, IndexToName(i++));
         }
+
         foreach (var renamedState in dict.Keys)
         {
             foreach (var state in _transitions.Keys)
@@ -167,11 +237,11 @@ public class Dfa
                 foreach (var transition in _transitions[state].Keys
                              .Where(transition => _transitions[state][transition].Equals(renamedState)))
                 {
-                    _transitions[state][transition]= dict[renamedState];
+                    _transitions[state][transition] = dict[renamedState];
                 }
             }
 
-            if(_transitions.Remove(renamedState, out var tmp))
+            if (_transitions.Remove(renamedState, out var tmp))
             {
                 _transitions.Add(dict[renamedState], tmp);
             }

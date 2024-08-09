@@ -25,7 +25,8 @@ window["vizInstance"] = null;
 
 function compile() {
     const res = exports.WebRegExCompiler.RegExToNfaAndDfa(document.getElementById("RegExInput").value,
-        document.getElementById("MinimizeDFA").checked);
+        document.getElementById("MinimizeDFA").checked,
+        document.getElementById("MinimizeDFANames").checked);
     document.getElementById('outNfa').innerHTML = res[0];
     document.getElementById('outDfa').innerHTML = res[1];
     createSVG();

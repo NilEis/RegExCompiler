@@ -3,7 +3,7 @@ using System.Text;
 using RegExCompiler;
 using RegExCompiler.Parsing;
 
-const string input = "abc*";
+const string input = "c*";
 var tokenized = Tokenizer.Tokenize(input).ToImmutableList();
 var tokenizedString = new StringBuilder("");
 foreach (var token in tokenized)
@@ -25,7 +25,7 @@ using var swNfa = new StreamWriter("nfa.dot");
 Console.Out.WriteLine("writing nfa.dot");
 swNfa.Write(nfa);
 swNfa.Flush();
-var dfa = Dfa.FromNfa(nfa, input).Minimize();
+var dfa = Dfa.FromNfa(nfa, input).Minimize().MinimizeNames();
 using var swDfa = new StreamWriter("dfa.dot");
 Console.Out.WriteLine("writing dfa.dot");
 swDfa.Write(dfa);
