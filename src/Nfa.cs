@@ -18,13 +18,14 @@ public class Nfa
     static Nfa()
     {
         var set = new HashSet<char>();
-        foreach (var i in Enumerable.Range('\x1', 127).Select(i=>(char)i))
+        foreach (var i in Enumerable.Range('\x1', 127).Select(i => (char)i))
         {
             if (!char.IsControl(i))
             {
                 set.Add(i);
             }
         }
+
         allowedChars = set.ToImmutableHashSet();
     }
 
@@ -313,7 +314,7 @@ public class Nfa
 
     public IEnumerable<int> GetEpsilonReachableStates(int start)
     {
-        var res = new HashSet<int> { start };
+        HashSet<int> res = [start];
         if (!GetTransitions(start, Epsilon, out var t))
         {
             return res;
@@ -344,6 +345,62 @@ public class Nfa
 
             GetEpsilonReachableStates(dest, ref res);
         }
+    }
+
+    private Nfa mergeEpsilonStates()
+    {
+        foreach (var state in _transitions.Keys.Where(state =>
+                     _transitions[state].ContainsKey(Epsilon) && _transitions[state].Keys.Count == 1 &&
+                     _transitions[state][Epsilon].Count == 1))
+        {
+            var next = _transitions[state][Epsilon].Single();
+            if (state == Initial)
+            {
+                Initial = next;
+            }
+
+            _transitions.Remove(state);
+            foreach (var searchState in _transitions.Keys)
+            {
+                foreach (var transition in _transitions[searchState].Keys
+                             .Where(transition => _transitions[searchState][transition].Contains(state)))
+                {
+                    if (searchState == next)
+                    {
+                        continue;
+                    }
+
+                    _transitions[searchState][transition].Remove(state);
+                    _transitions[searchState][transition].Add(next);
+                }
+            }
+        }
+
+        var i = 0;
+        var dict = _transitions.Keys.ToDictionary(state => state, state => i++);
+        dict.Add(Final, i);
+        foreach (var renamedState in dict.Keys)
+        {
+            foreach (var state in _transitions.Keys)
+            {
+                foreach (var transition in _transitions[state].Keys
+                             .Where(transition => _transitions[state][transition].Contains(renamedState)))
+                {
+                    _transitions[state][transition].Remove(renamedState);
+                    _transitions[state][transition].Add(dict[renamedState]);
+                }
+            }
+
+            if(_transitions.Remove(renamedState, out var tmp))
+            {
+                _transitions.Add(dict[renamedState], tmp);
+            }
+        }
+
+        Initial = dict[Initial];
+        Final = dict[Final];
+
+        return this;
     }
 
     public override string ToString()
@@ -386,7 +443,7 @@ public class Nfa
                 {
                     k = $"Control-{(int)key}";
                 }
-                else if(key == '"')
+                else if (key == '"')
                 {
                     k = "\\\"";
                 }

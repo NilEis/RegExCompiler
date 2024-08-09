@@ -8,9 +8,13 @@ Console.WriteLine("Hello, Browser!");
 public partial class WebRegExCompiler
 {
     [JSExport]
-    internal static string[] RegExToNfaAndDfa(string regex)
+    internal static string[] RegExToNfaAndDfa(string regex, bool MinimizeDFA = true)
     {
         var nfa = Nfa.FromInfix(InfixToPostfix.Convert(Tokenizer.Tokenize(regex)), regex);
-        return [nfa.ToString(), Dfa.FromNfa(nfa, regex).ToString()];
+        var dfa = Dfa.FromNfa(nfa, regex);
+        if (MinimizeDFA)
+        {
+        }
+        return [nfa.ToString(), dfa.ToString()];
     }
 }

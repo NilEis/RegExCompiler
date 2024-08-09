@@ -80,7 +80,7 @@ public class Dfa
             }
         }
 
-        res._initial = res._transitions.Keys.AsEnumerable().ToArray()[1];
+        res._initial = res._transitions.Keys.AsEnumerable().ToArray()[0];
 
         return res;
 
