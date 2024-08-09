@@ -149,7 +149,47 @@ public class Dfa
 
         match = input[..i];
         return true;
+    }
 
+    public Dfa Minimize()
+    {
+        var i = 0;
+        var dict = _transitions.Keys.ToDictionary(state => state, state => IndexToName(i++));
+
+        foreach (var fin in _final)
+        {
+            dict.TryAdd(fin, IndexToName(i++));   
+        }
+        foreach (var renamedState in dict.Keys)
+        {
+            foreach (var state in _transitions.Keys)
+            {
+                foreach (var transition in _transitions[state].Keys
+                             .Where(transition => _transitions[state][transition].Equals(renamedState)))
+                {
+                    _transitions[state][transition]= dict[renamedState];
+                }
+            }
+
+            if(_transitions.Remove(renamedState, out var tmp))
+            {
+                _transitions.Add(dict[renamedState], tmp);
+            }
+        }
+
+        _initial = dict[_initial];
+        foreach (var fin in _final.ToList())
+        {
+            _final.Remove(fin);
+            _final.Add(dict[fin]);
+        }
+
+        return this;
+
+        string IndexToName(int i1)
+        {
+            return $"{{{i1}}}";
+        }
     }
 
     public override string ToString()
@@ -188,7 +228,7 @@ public class Dfa
                 {
                     k = $"Control-{(int)key}";
                 }
-                else if(key == '"')
+                else if (key == '"')
                 {
                     k = "\\\"";
                 }
